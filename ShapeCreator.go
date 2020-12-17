@@ -1,36 +1,32 @@
-package main
+package ShapeCreator
 
 import (
 	"image"
 	"image/color"
-	"image/png"
 	"math"
-	"os"
-	"time"
 )
 
 // Structs
-type pixel struct {
-	Col color.Color
-	Pos [2]int
+type Pixel struct {
+	Colr color.Color
+	Pos  [2]int
 }
 
-type canvas struct {
+type Canvas struct {
 	postInit bool
-	Cols     map[string]color.Color
 	canvas   image.RGBA
 	size     [2]int
-	buffer   chan pixel
+	buffer   chan Pixel
 }
 
-func (canvas *canvas) Init(size [2]int) {
+func (canvas *Canvas) Init(size [2]int) {
 	canvas.size = size
 	canvas.canvas = *image.NewRGBA(image.Rect(0, 0, canvas.size[0], canvas.size[1]))
-	canvas.buffer = make(chan pixel, 0)
+	canvas.buffer = make(chan Pixel, 0)
 	canvas.postInit = true
 }
 
-func (canvas *canvas) JoinPoints(points [][2]int) ([][2]int, error) {
+func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 	// Go does not provide sets, so to avoid duplicate points due to rounding, use map keys
 	// at little extra cost as structs take 0 bytes
 	allPoints := make(map[[2]int]struct{})
@@ -89,16 +85,17 @@ func (canvas *canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 		pPoint = cPoint
 	}
 
-	// Convert our set implementation to a simple array for compatibility
+	// Convert our set implementation to a simple array for compatibility with the other methods
 	finalPoints := [][2]int{}
 	for element := range allPoints {
 		finalPoints = append(finalPoints, element)
 	}
+	finalPoints = canvas.FlipPoints(finalPoints)
 
-	return canvas.FlipPoints(finalPoints), nil
+	return finalPoints, nil
 }
 
-func (canvas *canvas) FlipPoints(points [][2]int) [][2]int {
+func (canvas *Canvas) FlipPoints(points [][2]int) [][2]int {
 	flipped := [][2]int{}
 	for _, point := range points {
 		point = [2]int{
@@ -110,70 +107,31 @@ func (canvas *canvas) FlipPoints(points [][2]int) [][2]int {
 	return flipped
 }
 
-func (canvas *canvas) PointsToPixels(points [][2]int, col string) ([]pixel, error) {
-	// TODO: Check if col is valid
-	pixels := []pixel{}
+func (canvas *Canvas) PointsToPixels(points [][2]int, colr color.Color) ([]Pixel, error) {
+	pixels := []Pixel{}
 	for _, point := range points {
-		pixel := pixel{
-			Pos: point,
-			Col: canvas.Cols[col],
+		pixel := Pixel{
+			Pos:  point,
+			Colr: colr,
 		}
 		pixels = append(pixels, pixel)
 	}
 	return pixels, nil
 }
 
-func (canvas *canvas) SendPixels(pixels []pixel) {
+func (canvas *Canvas) SendPixels(pixels []Pixel) {
 	for _, pixel := range pixels {
 		canvas.buffer <- pixel
 	}
 }
 
-func (canvas *canvas) DrawPixels(timeout time.Duration) {
+func (canvas *Canvas) DrawPixels() {
 	for pixel := range canvas.buffer {
-		canvas.canvas.Set(pixel.Pos[0], pixel.Pos[1], pixel.Col)
+		canvas.canvas.Set(pixel.Pos[0], pixel.Pos[1], pixel.Colr)
 	}
 }
 
-func (canvas *canvas) GetResult() image.Image {
+func (canvas *Canvas) GetResult() image.Image {
 	//canvasSnapshot := canvas.canvas
 	return &canvas.canvas
-}
-
-func main() {
-
-	// Instantiate canvas
-	var mainCanvas = canvas{
-		Cols: map[string]color.Color{
-			"black":  color.RGBA{0, 0, 0, 255},
-			"white":  color.RGBA{255, 255, 255, 255},
-			"red":    color.RGBA{255, 0, 0, 255},
-			"green":  color.RGBA{0, 255, 0, 255},
-			"blue":   color.RGBA{0, 0, 255, 255},
-			"orange": color.RGBA{255, 255, 0, 255},
-			"yellow": color.RGBA{0, 255, 255, 255},
-			"purple": color.RGBA{255, 0, 255, 255},
-		},
-	}
-	mainCanvas.Init([2]int{512, 512})
-	go mainCanvas.DrawPixels(-1)
-
-	points, _ := mainCanvas.JoinPoints([][2]int{
-		[2]int{0, 0},
-		[2]int{512, 256},
-		[2]int{0, 512},
-		[2]int{512, 0},
-		[2]int{0, 256},
-	})
-
-	pixels, _ := mainCanvas.PointsToPixels(points, "red")
-	mainCanvas.SendPixels(pixels)
-
-	f, err := os.Create("draw.png")
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-	png.Encode(f, mainCanvas.GetResult())
 }
