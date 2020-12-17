@@ -22,7 +22,7 @@ type Canvas struct {
 func (canvas *Canvas) Init(size [2]int) {
 	canvas.size = size
 	canvas.canvas = *image.NewRGBA(image.Rect(0, 0, canvas.size[0], canvas.size[1]))
-	canvas.buffer = make(chan Pixel, 0)
+	canvas.buffer = make(chan Pixel)
 	canvas.postInit = true
 }
 
@@ -49,8 +49,16 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 					math.Sqrt(math.Pow(posDiffs[0], 2) + math.Pow(posDiffs[1], 2)),
 				),
 			)
-			// Work out the gradient of the line between the two points
-			posDiffGradient := posDiffs[1] / posDiffs[0]
+			// Work out the gradient of the line between the two points. In case posDiffs[0] == 0
+			// and posDiffs [1] != 0 (line is going straight up/down), the gradient is undefined,
+			// so we'll just replace it with 0 and the special case will be handled later to draw
+			// the correct line
+			var posDiffGradient float64
+			if posDiffs[0] == 0 && posDiffs[1] != 0 {
+				posDiffGradient = 0
+			} else {
+				posDiffGradient = posDiffs[1] / posDiffs[0]
+			}
 
 			// We now have all the information we need to join the two points
 
@@ -69,6 +77,19 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 			// What we should increment the y coordinate by to generate the next pixel. This is the x increment
 			// multiplied by the ratio of x to y for proportion
 			yIncrement := xIncrement * posDiffGradient
+
+			// If posDiffs[0] is 0 and posDiffs[1] is not, we are attempting to draw a vertical line which has
+			// an undefined gradient (which was replaced with 0 earlier). yIncrement will therefore be 0 even
+			// though we do need to increment y to get to the next point. For this reason, depending on whether
+			// the next point is above or below, set yIncrement to 1 or -1
+			if posDiffs[0] == 0 {
+				if posDiffs[1] > 0 {
+					yIncrement = 1
+				} else if posDiffs[1] < 0 {
+					yIncrement = -1
+				}
+				// No else since if posDiffs[1] also equals 0 we are just drawing a point
+			}
 
 			// For each point needing to be generated
 			// TODO: Skip points which round to the same coordinated for efficiency
