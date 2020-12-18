@@ -1,11 +1,12 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"image/png"
 	"os"
 
-	sc ".." // github.com/TR-SLimey/ShapeCreator
+	p ".." // github.com/TR-SLimey/GoPoints
 )
 
 func main() {
@@ -21,24 +22,30 @@ func main() {
 		"purple": color.RGBA{255, 0, 255, 255},
 	}
 
-	// Instantiate canvas
-	var mainCanvas = sc.Canvas{}
+	// Create a plane
+	plane := p.Plane{}
 
-	mainCanvas.Init(
+	plane.Init(
 		[2]int{512, 512},
 	)
-	go mainCanvas.DrawPixels()
 
-	points, _ := mainCanvas.JoinPoints([][2]int{
-		[2]int{0, 0},
-		[2]int{512, 256},
-		[2]int{0, 512},
-		[2]int{512, 0},
-		[2]int{0, 256},
-	})
+	square := []p.Point{
+		p.Point{10, 10},
+		p.Point{50, 10},
+		p.Point{50, 50},
+		p.Point{10, 50},
+		p.Point{10, 10},
+	}
 
-	pixels, _ := mainCanvas.PointsToPixels(points, palette["green"])
-	mainCanvas.SendPixels(pixels)
+	points := plane.JoinPoints(square)
+
+	planeDimensions := plane.GetDimensions()
+
+	img := image.NewRGBA(image.Rect(0, 0, planeDimensions[0], planeDimensions[1]))
+
+	for _, point := range points {
+		img.Set(point.X, point.Y, palette["red"])
+	}
 
 	f, err := os.Create("draw.png")
 	if err != nil {
@@ -46,5 +53,5 @@ func main() {
 	}
 
 	defer f.Close()
-	png.Encode(f, mainCanvas.GetResult())
+	_ = png.Encode(f, img)
 }
