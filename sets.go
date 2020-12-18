@@ -4,37 +4,37 @@ package ShapeCreator
 // as they do not repeat and are unordered. The value used is a blank struct as it causes little
 // to no overead due to its 0-byte size.
 
-type set struct {
+type PointSet struct {
 	// The actual data-storage part
-	data map[interface{}]struct{}
+	data map[Point]struct{}
 }
 
-func (set *set) Init() {
+func (set *PointSet) Init() {
 	// Only if the set is not already initialised in order to avoid accidentally removing data
 	if set.data == nil {
-		set.data = make(map[interface{}]struct{})
+		set.data = make(map[Point]struct{})
 	}
 }
 
-func (set *set) Add(element interface{}) {
+func (set *PointSet) Add(point Point) {
 	// Automatically init the set if it's not initialised yet (check handled by Init())
 	set.Init()
 
-	set.data[element] = struct{}{}
+	set.data[point] = struct{}{}
 }
 
-func (set *set) Remove(element interface{}) {
+func (set *PointSet) Remove(point Point) {
 	// Automatically init the set if it's not initialised yet (check handled by Init())
 	set.Init()
 
-	delete(set.data, element)
+	delete(set.data, point)
 }
 
-func (set *set) ToArray() []interface{} {
+func (set *PointSet) ToArray() []Point {
 	// Convert the set to an array for easy access
-	arr := []interface{}{}
-	for element, _ := range set.data {
-		arr = append(arr, element)
+	arr := make([]Point)
+	for point, _ := range set.data {
+		arr = append(arr, point)
 	}
 	return arr
 }

@@ -1,37 +1,23 @@
 package ShapeCreator
 
-import (
-	"image"
-	"image/color"
-	"math"
-)
+import "math"
 
-// Structs
-type Pixel struct {
-	Colr color.Color
-	Pos  [2]int
+type Plane struct {
+	data       PointSet
+	dimensions [2]int
 }
 
-type Canvas struct {
-	postInit bool
-	canvas   image.RGBA
-	size     [2]int
-	buffer   chan Pixel
+func (pln *Plane) Init(dimensions [2]int) {
+	pln.dimensions = dimensions
+	pln.data = PointSet{}
 }
 
-func (canvas *Canvas) Init(size [2]int) {
-	canvas.size = size
-	canvas.canvas = *image.NewRGBA(image.Rect(0, 0, canvas.size[0], canvas.size[1]))
-	canvas.buffer = make(chan Pixel)
-	canvas.postInit = true
-}
-
-func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
+func (pln *Plane) JoinPoints(points []Point) []Point {
 	// Go does not provide sets, so to avoid duplicate points due to rounding, use map keys
 	// at little extra cost as structs take 0 bytes
-	allPoints := make(map[[2]int]struct{})
+	allPoints := PointSet{}
 
-	pPoint := [2]int{}
+	var pPoint Point
 	noPPoint := true
 
 	for _, cPoint := range points {
@@ -40,8 +26,8 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 		} else {
 			// Work out difference in X and difference in Y between the two points
 			posDiffs := []float64{
-				float64(cPoint[0] - pPoint[0]),
-				float64(cPoint[1] - pPoint[1]),
+				float64(cPoint.Pos[0] - pPoint.Pos[0]),
+				float64(cPoint.Pos[1] - pPoint.Pos[1]),
 			}
 			// Work out length of line between points (round to nearest pixel) (pythagoras)
 			posDiffLength := int(
@@ -66,8 +52,8 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 			// as the location of the next point is calculated from this. We start, of course, with
 			// the initial point itself
 			cDrawPoint := [2]float64{
-				float64(pPoint[0]),
-				float64(pPoint[1]),
+				float64(pPoint.Pos[0]),
+				float64(pPoint.Pos[1]),
 			}
 
 			// What we should increment the x coordinate by to generate the next pixel. This is simply the
@@ -95,9 +81,14 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 			// TODO: Skip points which round to the same coordinated for efficiency
 			for i := 0; i < posDiffLength; i++ {
 				// Add the point to the set of points
-				point := [2]int{int(math.Round(cDrawPoint[0])), int(math.Round(cDrawPoint[1]))}
+				point := Point{
+					Pos: [2]int{
+						int(math.Round(cDrawPoint[0])),
+						int(math.Round(cDrawPoint[1])),
+					},
+				}
 				//fmt.Println(point)
-				allPoints[point] = struct{}{}
+				allPoints.Add(point)
 				// Calculate the position of the next point
 				cDrawPoint[0] += xIncrement
 				cDrawPoint[1] += yIncrement
@@ -106,53 +97,16 @@ func (canvas *Canvas) JoinPoints(points [][2]int) ([][2]int, error) {
 		pPoint = cPoint
 	}
 
-	// Convert our set implementation to a simple array for compatibility with the other methods
-	finalPoints := [][2]int{}
-	for element := range allPoints {
-		finalPoints = append(finalPoints, element)
-	}
-	finalPoints = canvas.FlipPoints(finalPoints)
-
-	return finalPoints, nil
+	return allPoints.ToArray()
 }
 
-func (canvas *Canvas) FlipPoints(points [][2]int) [][2]int {
-	flipped := [][2]int{}
-	for _, point := range points {
-		point = [2]int{
-			point[0],
-			canvas.size[1] - point[1],
-		}
-		flipped = append(flipped, point)
-	}
-	return flipped
+func (pln *Plane) FlipX() {
+	// Only really here for completeness since we have FlipY. Someone might need this for something
 }
 
-func (canvas *Canvas) PointsToPixels(points [][2]int, colr color.Color) ([]Pixel, error) {
-	pixels := []Pixel{}
-	for _, point := range points {
-		pixel := Pixel{
-			Pos:  point,
-			Colr: colr,
-		}
-		pixels = append(pixels, pixel)
+func (pln *Plane) FlipY() {
+	// When generating images, the Y axis is flipped (0 top) so this may be useful to convert the plane to an image
+	for _, point := range pln.data.ToArray() {
+		point.Pos[1] = pln.dimensions[1] - point.Pos[1]
 	}
-	return pixels, nil
-}
-
-func (canvas *Canvas) SendPixels(pixels []Pixel) {
-	for _, pixel := range pixels {
-		canvas.buffer <- pixel
-	}
-}
-
-func (canvas *Canvas) DrawPixels() {
-	for pixel := range canvas.buffer {
-		canvas.canvas.Set(pixel.Pos[0], pixel.Pos[1], pixel.Colr)
-	}
-}
-
-func (canvas *Canvas) GetResult() image.Image {
-	//canvasSnapshot := canvas.canvas
-	return &canvas.canvas
 }
