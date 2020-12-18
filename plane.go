@@ -51,11 +51,11 @@ func (pln *Plane) ErasePoints(points []Point, strict bool) error {
 }
 
 func (pln *Plane) ReadPoints() []Point {
-	return pln.data.ToArray()
+	return pln.data.AsArray()
 }
 
 func (pln *Plane) ReadPointsByFilter(f filterFunction) []Point {
-	allPoints := pln.data.ToArray()
+	allPoints := pln.data.AsArray()
 	resultingPoints := []Point{}
 	for _, point := range allPoints {
 		if f(point) {
@@ -148,7 +148,7 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 		pPoint = cPoint
 	}
 
-	return allPoints.ToArray()
+	return allPoints.AsArray()
 }
 
 func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
@@ -159,7 +159,7 @@ func (pln *Plane) Flip(dimension int) {
 	// Sometimes you may need to flip the points on the plane, for example when converting to
 	// an image where the Y (1) axis it flipped
 	dimensionMax := pln.dimensions[dimension]
-	for _, point := range pln.data.ToArray() {
+	for _, point := range pln.data.AsArray() {
 		pln.data.Remove(point)
 		if dimension == 0 {
 			point.X = dimensionMax - point.X
