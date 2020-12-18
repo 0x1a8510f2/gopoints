@@ -164,6 +164,18 @@ func (pln *Plane) Flip(dimension int) {
 	}
 }
 
+func (pln *Plane) FlipPoints(points []Point, dimension int) []Point {
+	dimensionMax := pln.dimensions[dimension]
+	for _, point := range points {
+		if dimension == 0 {
+			point.X = dimensionMax - point.X
+		} else if dimension == 1 {
+			point.Y = dimensionMax - point.Y
+		}
+	}
+	return points
+}
+
 func (pln *Plane) GetDimensions() [2]int {
 	return pln.dimensions
 }
