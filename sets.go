@@ -23,6 +23,15 @@ func (set *PointSet) Add(point Point) {
 	set.data[point] = struct{}{}
 }
 
+func (set *PointSet) AddArray(pointArray []Point) {
+	// Automatically init the set if it's not initialised yet (check handled by Init())
+	set.Init()
+
+	for _, point := range pointArray {
+		set.Add(point)
+	}
+}
+
 func (set *PointSet) Remove(point Point) {
 	// Automatically init the set if it's not initialised yet (check handled by Init())
 	set.Init()
@@ -30,7 +39,16 @@ func (set *PointSet) Remove(point Point) {
 	delete(set.data, point)
 }
 
-func (set *PointSet) CheckFor(checkPoint Point) bool {
+func (set *PointSet) RemoveArray(pointArray []Point) {
+	// Automatically init the set if it's not initialised yet (check handled by Init())
+	set.Init()
+
+	for _, point := range pointArray {
+		set.Remove(point)
+	}
+}
+
+func (set PointSet) CheckFor(checkPoint Point) bool {
 	// Automatically init the set if it's not initialised yet (check handled by Init())
 	set.Init()
 
@@ -43,7 +61,7 @@ func (set *PointSet) CheckFor(checkPoint Point) bool {
 	return false
 }
 
-func (set *PointSet) ToArray() []Point {
+func (set PointSet) AsArray() []Point {
 	// Automatically init the set if it's not initialised yet (check handled by Init())
 	set.Init()
 
