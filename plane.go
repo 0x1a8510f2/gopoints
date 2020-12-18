@@ -111,6 +111,8 @@ func (pln *Plane) Flip(dimension int) {
 	}
 }
 
+// TODO: Flip points function
+
 func (pln *Plane) GetDimensions() [2]int {
 	return pln.dimensions
 }
