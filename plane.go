@@ -102,6 +102,9 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 
 func (pln *Plane) FlipX() {
 	// Only really here for completeness since we have FlipY. Someone might need this for something
+	for _, point := range pln.data.ToArray() {
+		point.Pos[0] = pln.dimensions[0] - point.Pos[0]
+	}
 }
 
 func (pln *Plane) FlipY() {
