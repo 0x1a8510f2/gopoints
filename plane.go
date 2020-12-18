@@ -100,16 +100,10 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 	return allPoints.ToArray()
 }
 
-func (pln *Plane) FlipX() {
-	// Only really here for completeness since we have FlipY. Someone might need this for something
+func (pln *Plane) Flip(dimension int) {
+	// Sometimes you may need to flip the points on the plane, for example when converting to
+	// an image where the Y (1) axis it flipped
 	for _, point := range pln.data.ToArray() {
-		point.Pos[0] = pln.dimensions[0] - point.Pos[0]
-	}
-}
-
-func (pln *Plane) FlipY() {
-	// When generating images, the Y axis is flipped (0 top) so this may be useful to convert the plane to an image
-	for _, point := range pln.data.ToArray() {
-		point.Pos[1] = pln.dimensions[1] - point.Pos[1]
+		point.Pos[dimension] = pln.dimensions[dimension] - point.Pos[dimension]
 	}
 }
