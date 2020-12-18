@@ -1,4 +1,4 @@
-package ShapeCreator
+package gopoints
 
 import "math"
 

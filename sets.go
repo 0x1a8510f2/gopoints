@@ -1,4 +1,4 @@
-package ShapeCreator
+package gopoints
 
 // A simple set implementation as Go does not provide one. Uses map keys as the storage medium
 // as they do not repeat and are unordered. The value used is a blank struct as it causes little
