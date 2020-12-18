@@ -1,6 +1,12 @@
 package gopoints
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
+
+// A special type used by Plane.ReadPointsByFilter
+type filterFunction func(Point) bool
 
 type Plane struct {
 	data       PointSet
@@ -12,16 +18,51 @@ func (pln *Plane) Init(dimensions [2]int) {
 	pln.data = PointSet{}
 }
 
-func WritePoints(points []Point, strict bool) error {
+func (pln *Plane) WritePoints(points []Point, strict bool) error {
+	if strict {
+		// Check whether all points fit the plane first before adding any
+		for _, point := range points {
+			if point.X > pln.dimensions[0] || point.X < 0 || point.Y > pln.dimensions[1] || point.Y > 0 {
+				return fmt.Errorf("point (%v) is outside of the plane", point)
+			}
+		}
+	}
+	// Actually add the points
+	for _, point := range points {
+		pln.data.Add(point)
+	}
 	return nil
 }
 
-func ErasePoints(points []Point, strict bool) error {
+func (pln *Plane) ErasePoints(points []Point, strict bool) error {
+	if strict {
+		// Check whether all points are on the plane
+		for _, point := range points {
+			if !pln.data.CheckFor(point) {
+				return fmt.Errorf("point (%v) is outside of the plane", point)
+			}
+		}
+	}
+	// Actually remove the points
+	for _, point := range points {
+		pln.data.Remove(point)
+	}
 	return nil
 }
 
-func ReadPoints(betweenX, betweenY [2]int) error {
-	return nil
+func (pln *Plane) ReadPoints() []Point {
+	return pln.data.ToArray()
+}
+
+func (pln *Plane) ReadPointsByFilter(f filterFunction) []Point {
+	allPoints := pln.data.ToArray()
+	resultingPoints := []Point{}
+	for _, point := range allPoints {
+		if f(point) {
+			resultingPoints = append(resultingPoints, point)
+		}
+	}
+	return resultingPoints
 }
 
 func (pln *Plane) JoinPoints(points []Point) []Point {
@@ -122,8 +163,6 @@ func (pln *Plane) Flip(dimension int) {
 		}
 	}
 }
-
-// TODO: Flip points function
 
 func (pln *Plane) GetDimensions() [2]int {
 	return pln.dimensions
