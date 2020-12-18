@@ -156,11 +156,13 @@ func (pln *Plane) Flip(dimension int) {
 	// an image where the Y (1) axis it flipped
 	dimensionMax := pln.dimensions[dimension]
 	for _, point := range pln.data.ToArray() {
+		pln.data.Remove(point)
 		if dimension == 0 {
 			point.X = dimensionMax - point.X
 		} else if dimension == 1 {
 			point.Y = dimensionMax - point.Y
 		}
+		pln.data.Add(point)
 	}
 }
 
