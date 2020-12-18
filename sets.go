@@ -33,7 +33,7 @@ func (set *PointSet) Remove(point Point) {
 func (set *PointSet) ToArray() []Point {
 	// Convert the set to an array for easy access
 	arr := []Point{}
-	for point, _ := range set.data {
+	for point := range set.data {
 		arr = append(arr, point)
 	}
 	return arr
