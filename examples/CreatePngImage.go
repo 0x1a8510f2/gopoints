@@ -20,6 +20,7 @@ func main() {
 		"orange": color.RGBA{255, 255, 0, 255},
 		"yellow": color.RGBA{0, 255, 255, 255},
 		"purple": color.RGBA{255, 0, 255, 255},
+		"none":   color.RGBA{0, 0, 0, 0},
 	}
 
 	// Create a plane
@@ -29,19 +30,21 @@ func main() {
 		[2]int{512, 512},
 	)
 
-	square := []p.Point{
-		p.Point{10, 10},
-		p.Point{50, 10},
-		p.Point{50, 50},
-		p.Point{10, 50},
-		p.Point{10, 10},
-	}
-
-	points := plane.JoinPoints(square)
-
 	planeDimensions := plane.GetDimensions()
 
 	img := image.NewRGBA(image.Rect(0, 0, planeDimensions[0], planeDimensions[1]))
+
+	// Draw a square
+	square := []p.Point{
+		p.Point{X: 10, Y: 10},
+		p.Point{X: 50, Y: 10},
+		p.Point{X: 50, Y: 50},
+		p.Point{X: 10, Y: 50},
+		p.Point{X: 10, Y: 10},
+	}
+	points := plane.JoinPoints(square)
+
+	plane.Flip(1) // We're about to draw the points onto an image which has a reversed Y axis, so flip to account for this
 
 	for _, point := range points {
 		img.Set(point.X, point.Y, palette["red"])
