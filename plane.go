@@ -12,6 +12,18 @@ func (pln *Plane) Init(dimensions [2]int) {
 	pln.data = PointSet{}
 }
 
+func WritePoints(points []Point, strict bool) error {
+	return nil
+}
+
+func ErasePoints(points []Point, strict bool) error {
+	return nil
+}
+
+func ReadPoints(betweenX, betweenY [2]int) error {
+	return nil
+}
+
 func (pln *Plane) JoinPoints(points []Point) []Point {
 	// Go does not provide sets, so to avoid duplicate points due to rounding, use map keys
 	// at little extra cost as structs take 0 bytes
