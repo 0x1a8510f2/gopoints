@@ -151,6 +151,10 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 	return allPoints.ToArray()
 }
 
+func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
+	return points // placeholder
+}
+
 func (pln *Plane) Flip(dimension int) {
 	// Sometimes you may need to flip the points on the plane, for example when converting to
 	// an image where the Y (1) axis it flipped
