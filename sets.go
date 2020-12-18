@@ -30,7 +30,23 @@ func (set *PointSet) Remove(point Point) {
 	delete(set.data, point)
 }
 
+func (set *PointSet) CheckFor(checkPoint Point) bool {
+	// Automatically init the set if it's not initialised yet (check handled by Init())
+	set.Init()
+
+	// Simple linear search should suffice
+	for point := range set.data {
+		if point == checkPoint {
+			return true
+		}
+	}
+	return false
+}
+
 func (set *PointSet) ToArray() []Point {
+	// Automatically init the set if it's not initialised yet (check handled by Init())
+	set.Init()
+
 	// Convert the set to an array for easy access
 	arr := []Point{}
 	for point := range set.data {
