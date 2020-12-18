@@ -26,8 +26,8 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 		} else {
 			// Work out difference in X and difference in Y between the two points
 			posDiffs := []float64{
-				float64(cPoint.Pos[0] - pPoint.Pos[0]),
-				float64(cPoint.Pos[1] - pPoint.Pos[1]),
+				float64(cPoint.X - pPoint.X),
+				float64(cPoint.Y - pPoint.Y),
 			}
 			// Work out length of line between points (round to nearest pixel) (pythagoras)
 			posDiffLength := int(
@@ -52,8 +52,8 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 			// as the location of the next point is calculated from this. We start, of course, with
 			// the initial point itself
 			cDrawPoint := [2]float64{
-				float64(pPoint.Pos[0]),
-				float64(pPoint.Pos[1]),
+				float64(pPoint.X),
+				float64(pPoint.Y),
 			}
 
 			// What we should increment the x coordinate by to generate the next pixel. This is simply the
@@ -82,10 +82,8 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 			for i := 0; i < posDiffLength; i++ {
 				// Add the point to the set of points
 				point := Point{
-					Pos: [2]int{
-						int(math.Round(cDrawPoint[0])),
-						int(math.Round(cDrawPoint[1])),
-					},
+					X: int(math.Round(cDrawPoint[0])),
+					Y: int(math.Round(cDrawPoint[1])),
 				}
 				//fmt.Println(point)
 				allPoints.Add(point)
@@ -103,7 +101,16 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 func (pln *Plane) Flip(dimension int) {
 	// Sometimes you may need to flip the points on the plane, for example when converting to
 	// an image where the Y (1) axis it flipped
+	dimensionMax := pln.dimensions[dimension]
 	for _, point := range pln.data.ToArray() {
-		point.Pos[dimension] = pln.dimensions[dimension] - point.Pos[dimension]
+		if dimension == 0 {
+			point.X = dimensionMax - point.X
+		} else if dimension == 1 {
+			point.Y = dimensionMax - point.Y
+		}
 	}
+}
+
+func (pln *Plane) GetDimensions() [2]int {
+	return pln.dimensions
 }
