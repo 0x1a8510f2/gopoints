@@ -89,7 +89,7 @@ func main() {
 		img.Set(point.X, point.Y, palette["red"])
 	}
 
-	f, err := os.Create("example.png")
+	f, err := os.Create("CreatePngImage.png")
 	if err != nil {
 		panic(err)
 	}
