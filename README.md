@@ -1,7 +1,7 @@
 # GoPoints
 
 A very simple Go library for creating shapes on a 2D plane out of points, using only the Go stdlib. Supports some basic functions like:
-- storing points in a `plane` structure
+- storing points in a `Plane` structure
 - joining arbitrary points with lines (including diagonal)
 - filling shapes with points
 - flipping the whole plane or some points along the X or Y axis
