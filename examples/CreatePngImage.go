@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	p ".." // github.com/TR-SLimey/GoPoints
+	p "github.com/TR-SLimey/gopoints"
 )
 
 func main() {
