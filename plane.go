@@ -133,7 +133,7 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 			}
 
 			// For each point needing to be generated
-			// TODO: Skip points which round to the same coordinated for efficiency
+			// TODO: Skip points which round to the same coordinates for efficiency
 			for i := 0; i < posDiffLength; i++ {
 				// Add the point to the set of points
 				point := Point{
