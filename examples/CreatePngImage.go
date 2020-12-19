@@ -4,7 +4,9 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math/rand"
 	"os"
+	"time"
 
 	p ".." // github.com/TR-SLimey/GoPoints
 )
@@ -62,6 +64,21 @@ func main() {
 	}
 	// Join the points
 	points = plane.JoinAndFillPoints(triangle)
+	// Add them to the plane (non-strict so no need to check error)
+	_ = plane.WritePoints(points, false)
+
+	// Drawing a random shape
+
+	randomShape := []p.Point{}
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < 10; i++ {
+		randomShape = append(randomShape, p.Point{
+			X: rand.Intn(500-200) + 200,
+			Y: rand.Intn(500-200) + 200,
+		})
+	}
+	// Join the points
+	points = plane.JoinPoints(randomShape)
 	// Add them to the plane (non-strict so no need to check error)
 	_ = plane.WritePoints(points, false)
 
