@@ -66,8 +66,10 @@ func (pln *Plane) ReadPointsByFilter(f filterFunction) []Point {
 }
 
 func (pln *Plane) JoinPoints(points []Point) []Point {
-	// Go does not provide sets, so to avoid duplicate points due to rounding, use map keys
-	// at little extra cost as structs take 0 bytes
+	if len(points) == 0 {
+		return []Point{}
+	}
+
 	allPoints := PointSet{}
 
 	var pPoint Point
@@ -152,7 +154,82 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 }
 
 func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
-	return points // placeholder
+	if len(points) == 0 {
+		return []Point{}
+	}
+
+	// Calculate the points furthest in each direction
+	minX, minY, maxX, maxY := pln.dimensions[0], pln.dimensions[1], 0, 0
+	for _, point := range points {
+		if point.X < minX {
+			minX = point.X
+		}
+		if point.X > maxX {
+			maxX = point.X
+		}
+		if point.Y < minY {
+			minY = point.Y
+		}
+		if point.Y > maxY {
+			maxY = point.Y
+		}
+	}
+
+	// Create a rectangle containing the entire shape
+	rect := []Point{
+		Point{
+			X: minX - 1,
+			Y: minY - 1,
+		},
+		Point{
+			X: maxX + 1,
+			Y: maxY + 1,
+		},
+	}
+
+	// Work out the points making up the outline of the shape
+	points = pln.JoinPoints(points)
+
+	// Function used below to search the array for a particular point
+	pointExists := func(searchPoint Point) bool {
+		for _, point := range points {
+			if point == searchPoint {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Cast "rays" from one side of the rectangle to the other. If they encounter
+	// a point making up the sides of the shape, start drawing points until another
+	// point is encountered
+	drawnPoints := PointSet{}
+	drawnPoints.AddArray(points) // The outline is always drawn anyway
+	for x := rect[0].X; x < rect[1].X; x++ {
+		totalRayPoints := []Point{}
+		for y := rect[0].Y; y < rect[1].Y; y++ {
+			curPoint := Point{X: x, Y: y}
+			nextPoint := Point{X: x, Y: y + 1}
+			// If the current point exists, count it (unless the next one
+			// exists too in which case count them as one on the next loop)
+			if pointExists(curPoint) && !pointExists(nextPoint) {
+				totalRayPoints = append(totalRayPoints, curPoint)
+			}
+		}
+		// If the number of points is odd, discard the last one as not to paint the rest of the rectangle
+		if len(totalRayPoints)%2 != 0 {
+			totalRayPoints = totalRayPoints[:len(totalRayPoints)-1]
+		}
+		for i := range totalRayPoints {
+			if i%2 != 0 {
+				continue
+			}
+			drawnPoints.AddArray(pln.JoinPoints([]Point{totalRayPoints[i], totalRayPoints[i+1]}))
+		}
+
+	}
+
+	return drawnPoints.AsArray()
 }
 
 func (pln *Plane) Flip(dimension int) {
