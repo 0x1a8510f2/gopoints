@@ -257,6 +257,7 @@ func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
 // an integer - 0 for X and 1 for Y.
 func (pln *Plane) Flip(dimension int) {
 	dimensionMax := pln.dimensions[dimension]
+	flipped := PointSet{}
 	for _, point := range pln.data.AsArray() {
 		pln.data.Remove(point)
 		if dimension == 0 {
@@ -264,8 +265,9 @@ func (pln *Plane) Flip(dimension int) {
 		} else if dimension == 1 {
 			point.Y = dimensionMax - point.Y
 		}
-		pln.data.Add(point)
+		flipped.Add(point)
 	}
+	pln.data.AddArray(flipped.AsArray())
 }
 
 // FlipPoints is much the same as Flip, but acts on a given set of points as opposed to the whole plane.
