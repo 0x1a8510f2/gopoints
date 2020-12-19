@@ -61,7 +61,7 @@ func main() {
 		p.Point{X: 150, Y: 190},
 	}
 	// Join the points
-	points = plane.JoinPoints(triangle)
+	points = plane.JoinAndFillPoints(triangle)
 	// Add them to the plane (non-strict so no need to check error)
 	_ = plane.WritePoints(points, false)
 
