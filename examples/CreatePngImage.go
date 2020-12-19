@@ -43,13 +43,13 @@ func main() {
 	// The points of a square
 	square := []p.Point{
 		p.Point{X: 10, Y: 10},
-		p.Point{X: 50, Y: 10},
-		p.Point{X: 50, Y: 50},
-		p.Point{X: 10, Y: 50},
+		p.Point{X: 250, Y: 10},
+		p.Point{X: 250, Y: 250},
+		p.Point{X: 10, Y: 250},
 		p.Point{X: 10, Y: 10},
 	}
 	// Join them
-	points := plane.JoinPoints(square)
+	points := plane.JoinAndFillPoints(square)
 	// Add them to the plane (non-strict so no need to check error)
 	_ = plane.WritePoints(points, false)
 
@@ -65,7 +65,7 @@ func main() {
 	// Join the points
 	points = plane.JoinAndFillPoints(triangle)
 	// Add them to the plane (non-strict so no need to check error)
-	_ = plane.WritePoints(points, false)
+	_ = plane.ErasePoints(points, false)
 
 	// Drawing a random shape
 
