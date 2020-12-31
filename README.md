@@ -11,7 +11,7 @@ A very simple Go library for creating shapes on a 2D plane out of points, using 
 
 ## Use cases
 
-Can be used for any number of things, but my primary use-case is generating images made of 2D, 1D or 0D shapes, such as the [example image](https://github.com/TR-SLimey/gopoints/blob/master/examples/CreatePngImage.png?raw=true) generated with `examples/CreatePngImage.go`:
+Can be used for any number of things, but my primary use-case is generating images made of 2D shapes, such as the [example image](https://github.com/TR-SLimey/gopoints/blob/master/examples/CreatePngImage.png?raw=true) generated with `examples/CreatePngImage.go`:
 
 ![example image](https://github.com/TR-SLimey/gopoints/blob/master/examples/CreatePngImage.png?raw=true)
 
