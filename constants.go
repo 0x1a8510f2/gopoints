@@ -1,4 +1,4 @@
 package gopoints
 
 // Current gopoints version
-const VERSION string = "v1.0.2"
+const VERSION string = "v1.0.3"
