@@ -274,12 +274,13 @@ func (pln *Plane) Flip(dimension int) {
 // It also returns the flipped points as a slice.
 func (pln *Plane) FlipPoints(points []Point, dimension int) []Point {
 	dimensionMax := pln.dimensions[dimension]
-	for _, point := range points {
+	for i, point := range points {
 		if dimension == 0 {
 			point.X = dimensionMax - point.X
 		} else if dimension == 1 {
 			point.Y = dimensionMax - point.Y
 		}
+		points[i] = point
 	}
 	return points
 }
