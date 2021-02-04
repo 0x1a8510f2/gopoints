@@ -195,11 +195,11 @@ func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
 
 	// Create a rectangle containing the entire shape
 	rect := []Point{
-		Point{
+		{
 			X: minX - 1,
 			Y: minY - 1,
 		},
-		Point{
+		{
 			X: maxX + 1,
 			Y: maxY + 1,
 		},
