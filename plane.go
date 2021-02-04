@@ -170,7 +170,7 @@ func (pln *Plane) JoinPoints(points []Point) []Point {
 
 // JoinAndFillPoints works much like JoinPoints except it also attempts to work out the "inside"
 // and "outside" of the shape being created, and then fill it with points. This is a one-size-fits-all
-// implementation works reasonably well for most simple shapes, but it's probably always better to make your own.
+// implementation and works reasonably well for most simple shapes, but it's probably always better to make your own.
 func (pln *Plane) JoinAndFillPoints(points []Point) []Point {
 	if len(points) == 0 {
 		return []Point{}
